@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  switchblade:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2024-10-21T18:19:48.822886099-04:00"
+    description: A Helm chart for Kubernetes
+    digest: 5570ae0b61e0615f55a753fee9b3e706a05e4bb78abf851ce642ed1296f5003f
+    name: switchblade
+    type: application
+    urls:
+    - switchblade-1.641.tgz
+    version: "1.641"
+generated: "2024-10-21T18:19:48.818095063-04:00"
