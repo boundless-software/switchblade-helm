@@ -1,0 +1,473 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/name: switchblade
+  name: switchblade
+  namespace: operators
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: switchblade
+    app.kubernetes.io/instance: leader-election-role
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: role
+    app.kubernetes.io/part-of: switchblade
+  name: leader-election-role
+  namespace: operators
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: switchblade
+  name: aws-cognito-editor-role
+rules:
+- apiGroups:
+  - aws.boundless.software
+  resources:
+  - cognitos
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aws.boundless.software
+  resources:
+  - cognitos/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: switchblade
+  name: aws-cognito-viewer-role
+rules:
+- apiGroups:
+  - aws.boundless.software
+  resources:
+  - cognitos
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - aws.boundless.software
+  resources:
+  - cognitos/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: kube-rbac-proxy
+    app.kubernetes.io/created-by: switchblade
+    app.kubernetes.io/instance: metrics-reader
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/part-of: switchblade
+  name: metrics-reader
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: kube-rbac-proxy
+    app.kubernetes.io/created-by: switchblade
+    app.kubernetes.io/instance: proxy-role
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/part-of: switchblade
+  name: proxy-role
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: switchblade
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - events
+  - namespaces
+  - nodes
+  - persistentvolumeclaims
+  - persistentvolumes
+  - resourcequotas
+  - secrets
+  - serviceaccounts
+  - services
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - admissionregistration.k8s.io
+  - apiregistration.k8s.io
+  - apps
+  - autoscaling
+  - batch
+  - networking.istio.io
+  - policy
+  - storage.k8s.io
+  resources:
+  - '*'
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - '*'
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - statefulsets
+  verbs:
+  - '*'
+- apiGroups:
+  - aws.boundless.software
+  resources:
+  - cognitos
+  - ec2s
+  - ecrs
+  - eks
+  - elasticaches
+  - iams
+  - kms
+  - lambda
+  - opensearches
+  - rds
+  - route53s
+  - s3s
+  - vpcs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aws.boundless.software
+  resources:
+  - cognitos/finalizers
+  - ec2s/finalizers
+  - ecrs/finalizers
+  - eks/finalizers
+  - elasticaches/finalizers
+  - iams/finalizers
+  - kms/finalizers
+  - lambda/finalizers
+  - opensearches/finalizers
+  - rds/finalizers
+  - route53s/finalizers
+  - s3s/finalizers
+  - vpcs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aws.boundless.software
+  resources:
+  - cognitos/status
+  - ec2s/status
+  - ecrs/status
+  - eks/status
+  - elasticaches/status
+  - iams/status
+  - kms/status
+  - lambda/status
+  - opensearches/status
+  - rds/status
+  - route53s/status
+  - s3s/status
+  - vpcs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - azure.boundless.soaftware
+  resources:
+  - virtualnetworks/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - azure.boundless.software
+  resources:
+  - aks
+  - blobstorages
+  - entraids
+  - managedidentities
+  - openais
+  - resourcegroups
+  - virtualmachines
+  - virtualnetworks
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - azure.boundless.software
+  resources:
+  - aks/finalizers
+  - blobstorages/finalizers
+  - entraids/finalizers
+  - managedidentities/finalizers
+  - openais/finalizers
+  - resourcegroups/finalizers
+  - virtualmachines/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - azure.boundless.software
+  resources:
+  - aks/status
+  - blobstorages/status
+  - entraids/status
+  - managedidentities/status
+  - openais/status
+  - resourcegroups/status
+  - virtualmachines/status
+  - virtualnetworks/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - '*'
+- apiGroups:
+  - core.boundless.software
+  resources:
+  - deployments
+  - helms
+  - stacks
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - core.boundless.software
+  resources:
+  - deployments/finalizers
+  - helms/finalizers
+  - stacks/finalizers
+  - statefulsets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - core.boundless.software
+  resources:
+  - deployments/status
+  - helms/status
+  - stacks/status
+  - statefulsets/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  - clusterroles
+  - rolebindings
+  - roles
+  verbs:
+  - '*'
+- apiGroups:
+  - web.boundless.software
+  resources:
+  - wordpresses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - web.boundless.software
+  resources:
+  - wordpresses/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - web.boundless.software
+  resources:
+  - wordpresses/status
+  verbs:
+  - get
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: switchblade
+    app.kubernetes.io/instance: leader-election-rolebinding
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: rolebinding
+    app.kubernetes.io/part-of: switchblade
+  name: leader-election-rolebinding
+  namespace: operators
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: controller-manager
+  namespace: system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: kube-rbac-proxy
+    app.kubernetes.io/created-by: switchblade
+    app.kubernetes.io/instance: proxy-rolebinding
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: clusterrolebinding
+    app.kubernetes.io/part-of: switchblade
+  name: proxy-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: proxy-role
+subjects:
+- kind: ServiceAccount
+  name: controller-manager
+  namespace: system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: switchblade
+  name: switchblade
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: switchblade
+subjects:
+- kind: ServiceAccount
+  name: switchblade
+  namespace: operators
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: kube-rbac-proxy
+    app.kubernetes.io/created-by: switchblade
+    app.kubernetes.io/instance: controller-manager-metrics-service
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: service
+    app.kubernetes.io/part-of: switchblade
+    control-plane: controller-manager
+  name: controller-manager-metrics-service
+  namespace: operators
+spec:
+  ports:
+  - name: https
+    port: 8443
+    protocol: TCP
+    targetPort: https
+  selector:
+    control-plane: controller-manager

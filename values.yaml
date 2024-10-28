@@ -5,9 +5,9 @@
 replicaCount: 1
 
 image:
-  name: 818674127672.dkr.ecr.us-east-1.amazonaws.com/switchblade
+  name: public.ecr.aws/boundless-software/switchblade
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "release-v0.0.19"
 
 imagePullSecrets: []
 nameOverride: ""
