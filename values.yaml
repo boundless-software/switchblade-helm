@@ -7,7 +7,17 @@ replicaCount: 1
 image:
   name: public.ecr.aws/boundless-software/switchblade
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "release-v0.0.19"
+  tag: "release-v0.0.19-lcm"
+
+env:
+- name: AWS_STATE_BUCKET
+  value: ""
+- name: AWS_STATE_BUCKET_REGION
+  value: ""
+- name: PARTNER_ID
+  value: a687a145-4611-4c25-8bc1-9774f92f56a7
+- name: PRODUCT_CODE
+  value: prod-urxqo
 
 imagePullSecrets: []
 nameOverride: ""

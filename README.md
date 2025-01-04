@@ -17,20 +17,20 @@ This Helm chart deploys the following Kubernetes resources:
 
 ## Installing the Chart
 
-To install the chart with the release name `my-release`:
+To install the chart with the release name `switchblade`:
 
 ```bash
-helm install my-release ./switchblade-helm
+helm install switchblade ./switchblade-helm
 ```
 
 The command deploys Switchblade on the Kubernetes cluster with default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
 
 ## Uninstalling the Chart
 
-To uninstall/delete the `my-release` deployment:
+To uninstall/delete the `switchblade` deployment:
 
 ```bash
-helm delete my-release
+helm delete switchblade
 ```
 
 This command removes all the Kubernetes components associated with the chart and deletes the release.
@@ -42,8 +42,8 @@ The following table lists the configurable parameters of the Switchblade chart a
 | Parameter                | Description             | Default        |
 |--------------------------|-------------------------|----------------|
 | `replicaCount`           | Number of replicas      | `1`            |
-| `image.name`             | Container image name    | `818674127672.dkr.ecr.us-east-1.amazonaws.com/switchblade` |
-| `image.tag`              | Container image tag     | `"latest"`     |
+| `image.name`             | Container image name    | `public.ecr.aws/boundless-software/switchblade:release-v0.0.19-lcm` |
+| `image.tag`              | Container image tag     | `"release-v0.0.19-lcm"`     |
 | `service.type`           | Kubernetes service type | `ClusterIP`    |
 | `service.port`           | Service port            | `80`           |
 | `ingress.enabled`        | Enable ingress          | `false`        |
@@ -52,13 +52,13 @@ The following table lists the configurable parameters of the Switchblade chart a
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
 ```bash
-helm install my-release ./switchblade-helm --set replicaCount=2
+helm install switchblade ./switchblade-helm --set replicaCount=2
 ```
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
 ```bash
-helm install my-release ./switchblade-helm -f values.yaml
+helm install switchblade ./switchblade-helm -f values.yaml
 ```
 
 ## AWS Credentials
@@ -97,7 +97,7 @@ Horizontal Pod Autoscaling can be enabled by setting `autoscaling.enabled` to `t
 To upgrade the chart:
 
 ```bash
-helm upgrade my-release ./switchblade-helm
+helm upgrade switchblade ./switchblade-helm
 ```
 
 ## Support
