@@ -1,110 +1,117 @@
-# Switchblade Helm Chart
+# Welcome to Switchblade!
 
-This repository contains a Helm chart for deploying Switchblade to a Kubernetes cluster.
+Switchblade is a powerful Kubernetes operator for deploying and managing cloud infrastructure and Helm charts effortlessly. This guide provides installation instructions, update procedures, and common scenarios. If you have questions, please don’t hesitate to contact us.
 
-## Prerequisites
+---
 
-- Kubernetes 1.12+
-- Helm 3.0+
+## Documentation and Support
 
-## Chart Details
+- Documentation with examples: [Switchblade Documentation](http://switchblade-samples.boundless.software/aws/)
+- Support Email: [support@boundless.software](mailto:support@boundless.software)
 
-This Helm chart deploys the following Kubernetes resources:
-- Deployment for the Switchblade application
-- Service to expose the application
-- ServiceAccount for the pods
-- Secret for AWS credentials (optional)
+---
 
-## Installing the Chart
+## Requirements
 
-To install the chart with the release name `switchblade`:
+To install and use Switchblade, ensure you meet the following requirements:
 
-```bash
-helm install switchblade ./switchblade-helm
-```
+- **Architecture**: x86_64 platform
+- **Cloud Access**: AWS credentials (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`)
+- **Cluster Access**: Kubernetes access
+- **License**: Switchblade license key
+- **Tooling**: Helm 3.0+
 
-The command deploys Switchblade on the Kubernetes cluster with default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
+---
 
-## Uninstalling the Chart
+## Installation Steps
 
-To uninstall/delete the `switchblade` deployment:
+### 1. Create a Namespace for Switchblade
 
 ```bash
-helm delete switchblade
+kubectl create ns operators
 ```
 
-This command removes all the Kubernetes components associated with the chart and deletes the release.
+*Creating a separate namespace ensures isolation of resources specific to Switchblade.*
 
-## Parameters
+### 2. Configure AWS Credentials and License Key
 
-The following table lists the configurable parameters of the Switchblade chart and their default values.
+#### Set up AWS Credentials
 
-| Parameter                | Description             | Default        |
-|--------------------------|-------------------------|----------------|
-| `replicaCount`           | Number of replicas      | `1`            |
-| `image.name`             | Container image name    | `public.ecr.aws/boundless-software/switchblade:release-v0.0.19-lcm` |
-| `image.tag`              | Container image tag     | `"release-v0.0.19-lcm"`     |
-| `service.type`           | Kubernetes service type | `ClusterIP`    |
-| `service.port`           | Service port            | `80`           |
-| `ingress.enabled`        | Enable ingress          | `false`        |
-| `autoscaling.enabled`    | Enable autoscaling      | `false`        |
-
-Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
+The access key user must have **Admin permissions** on the AWS account. These credentials will be used to manage resources.
 
 ```bash
-helm install switchblade ./switchblade-helm --set replicaCount=2
+export AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID>
+export AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY>
+kubectl create secret -n operators generic aws \
+  --from-literal AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+  --from-literal AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 ```
 
-Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
+*It is recommended to use a secure secrets management solution for production environments.*
+
+#### Set up License Key
+
+You can obtain a license key by contacting us [here](https://boundless.software/contact/) and providing your AWS Account ID and Marketplace Agreement Type.
 
 ```bash
-helm install switchblade ./switchblade-helm -f values.yaml
+export LICENSE_KEY=<LICENSE_KEY>
+kubectl create secret -n operators generic switchblade \
+  --from-literal LICENSE_KEY=$LICENSE_KEY
 ```
 
-## AWS Credentials
+### 3. Create an S3 State Bucket
 
-This chart includes a `secret.yaml` file for AWS credentials. To use it:
-
-1. Edit `secret.yaml` and add your base64-encoded AWS credentials:
-   ```yaml
-   data:
-     AWS_ACCESS_KEY_ID: <base64-encoded-access-key>
-     AWS_SECRET_ACCESS_KEY: <base64-encoded-secret-key>
-   ```
-2. Apply the secret to your cluster:
-   ```bash
-   kubectl apply -f secret.yaml
-   ```
-
-**Note:** It's recommended to use more secure methods like IAM roles for service accounts in production environments.
-
-## Configuration and Installation Details
-
-### Image
-
-The `image` section in `values.yaml` allows you to specify the Switchblade image to use. By default, it's set to pull from an AWS ECR repository. Make sure your Kubernetes cluster has the necessary permissions to pull from this repository.
-
-### Ingress
-
-The chart includes an optional ingress resource. To enable it, set `ingress.enabled` to `true` and configure the `ingress` section in `values.yaml` according to your cluster setup.
-
-### Autoscaling
-
-Horizontal Pod Autoscaling can be enabled by setting `autoscaling.enabled` to `true`. Configure the `autoscaling` section in `values.yaml` to set the desired minimum and maximum replica counts and target CPU/memory utilization percentages.
-
-## Upgrading the Chart
-
-To upgrade the chart:
+This bucket will store the operator’s state. You can use the AWS Console or CLI to create it.
 
 ```bash
-helm upgrade switchblade ./switchblade-helm
+aws s3api create-bucket --acl private --bucket mycompany-myenvironment-switchblade-state
 ```
 
-## Support
+*Ensure the bucket is private to safeguard your operator’s state information.*
 
-For any issues or questions, please file an issue in the GitHub repository.
+### 4. Install the Helm Chart
+
+1. Download the values file from Artifact Hub:
+   [Switchblade Helm Chart Values](https://artifacthub.io/packages/helm/switchblade/switchblade?modal=values).
+
+2. Save the file as `values.yaml` and update the following fields:
+   - `AWS_STATE_BUCKET`: The name of the state bucket created in step 3.
+   - `AWS_STATE_BUCKET_REGION`: The region of the state bucket.
+
+3. Install the Helm chart:
+   - helm chart can be found here: https://artifacthub.io/packages/helm/switchblade/switchblade
+
+```bash
+helm repo add switchblade https://artifacthub.io/packages/helm/switchblade
+helm install switchblade switchblade/switchblade --version 0.0.19 -f values.yaml
 ```
 
-This README provides a comprehensive guide for users of your Helm chart. It includes sections on prerequisites, installation, configuration, and usage. The Parameters section gives an overview of the main configurable options, and there are additional sections covering AWS credentials, image configuration, ingress, and autoscaling.
+*Verify the Helm repository to ensure it is trusted and secure before proceeding.*
 
-Feel free to adjust any parts of this README to better fit your specific use case or to add any additional information you think would be helpful for users of your Helm chart.
+---
+
+## Updating the Helm Chart
+
+To update the chart to a newer version, use the `helm upgrade` command with your updated `values.yaml` file:
+
+```bash
+helm upgrade switchblade switchblade/switchblade --version <NEW_VERSION> -f values.yaml
+```
+
+---
+
+## Uninstalling the Helm Chart
+
+To uninstall Switchblade, run the following command:
+
+```bash
+helm uninstall switchblade
+```
+
+---
+
+## Contact Us
+
+For further assistance or inquiries, feel free to reach out:
+- Email: [support@boundless.software](mailto:support@boundless.software)
+- Documentation: [Switchblade Documentation](http://switchblade-samples.boundless.software/aws/)
