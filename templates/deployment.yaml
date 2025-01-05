@@ -75,8 +75,11 @@ spec:
           valueFrom:
             secretKeyRef:
               key: AZURE_SUBSCRIPTION_ID
-              name: azure        
-        {{- toYaml .Values.env | indent 12 }}
+              name: azure
+{{- range .Values.env }}
+        - name: {{ .name }}
+          value: {{ .value | quote }}
+{{- end }}
         image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: Always
         livenessProbe:

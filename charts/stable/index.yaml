@@ -3,13 +3,13 @@ entries:
   switchblade:
   - apiVersion: v2
     appVersion: release-v0.0.19-lcm
-    created: "2025-01-04T18:38:40.097418233-05:00"
+    created: "2025-01-04T19:46:06.523062823-05:00"
     description: A Helm chart for Kubernetes
-    digest: dbae4428c321296c4efa3d2c9a0df6faa44ef3bf82287969ca9c68845bdbdf5b
+    digest: ae1d4352643bc51a59943aca6d731748bace7ee377b848097949ce1f6dde0170
     icon: https://i0.wp.com/boundless.software/wp-content/uploads/2023/06/CLOUD-LOGO-white.png?resize=146%2C88&ssl=1
     name: switchblade
     type: application
     urls:
     - switchblade-0.0.19.tgz
     version: 0.0.19
-generated: "2025-01-04T18:38:40.092759038-05:00"
+generated: "2025-01-04T19:46:06.518139481-05:00"
