@@ -82,7 +82,7 @@ aws s3api create-bucket --acl private --bucket mycompany-myenvironment-switchbla
    - helm chart can be found here: https://artifacthub.io/packages/helm/switchblade/switchblade
 
 ```bash
-helm repo add switchblade https://artifacthub.io/packages/helm/switchblade
+helm repo add switchblade https://www.helm.boundless.software/charts/stable
 helm install switchblade switchblade/switchblade --version 0.0.19 -f values.yaml
 ```
 
