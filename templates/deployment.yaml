@@ -41,41 +41,11 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.uid
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              key: AWS_ACCESS_KEY_ID
-              name: aws
-        - name: AWS_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              key: AWS_SECRET_ACCESS_KEY
-              name: aws
         - name: LICENSE_KEY
           valueFrom:
             secretKeyRef:
               key: LICENSE_KEY
               name: switchblade
-        - name: AZURE_TENANT_ID
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_TENANT_ID
-              name: azure
-        - name: AZURE_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_CLIENT_ID
-              name: azure
-        - name: AZURE_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_CLIENT_SECRET
-              name: azure
-        - name: AZURE_SUBSCRIPTION_ID
-          valueFrom:
-            secretKeyRef:
-              key: AZURE_SUBSCRIPTION_ID
-              name: azure
 {{- range .Values.env }}
         - name: {{ .name }}
           value: {{ .value | quote }}
@@ -112,5 +82,5 @@ spec:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-      serviceAccountName: switchblade
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       terminationGracePeriodSeconds: 10
