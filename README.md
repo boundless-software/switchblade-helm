@@ -100,16 +100,6 @@ aws iam create-role \
 aws iam attach-role-policy --role-name SwitchbladeRole --policy-arn arn:aws:iam::<AWS_ACCOUNT_ID>:policy/SwitchbladeCombinedPolicy
 ```
 
-#### Step 2.2: Annotate the Service Account
-
-Link the IAM role to the Kubernetes service account used by Switchblade:
-
-```bash
-kubectl create serviceaccount switchblade -n operators
-kubectl annotate serviceaccount switchblade -n operators \
-  eks.amazonaws.com/role-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:role/SwitchbladeRole
-```
-
 *This setup allows Switchblade to use the IAM role dynamically without requiring static credentials.*
 
 #### Step 2.3: Attach the Policy to an EC2 Instance (Optional for k3s Clusters)
