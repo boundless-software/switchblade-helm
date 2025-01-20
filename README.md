@@ -16,7 +16,7 @@ Switchblade is a powerful Kubernetes operator for deploying and managing cloud i
 To install and use Switchblade, ensure you meet the following requirements:
 
 - **Architecture**: x86_64 platform
-- **Cloud Access**: AWS credentials (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`)
+- **Cloud Access**: AWS IAM Role with required permissions
 - **Cluster Access**: Kubernetes access
 - **License**: Switchblade license key
 - **Tooling**: Helm 3.0+
@@ -33,23 +33,102 @@ kubectl create ns operators
 
 *Creating a separate namespace ensures isolation of resources specific to Switchblade.*
 
-### 2. Configure AWS Credentials and License Key
+### 2. Set Up IAM Role for Kubernetes
 
-#### Set up AWS Credentials
+Switchblade uses **IAM Roles for Service Accounts (IRSA)** to securely access your AWS account without passing static credentials.
 
-The access key user must have **Admin permissions** on the AWS account. These credentials will be used to manage resources.
+#### Step 2.1: Create an IAM Role for Switchblade
 
-```bash
-export AWS_ACCESS_KEY_ID=<AWS_ACCESS_KEY_ID>
-export AWS_SECRET_ACCESS_KEY=<AWS_SECRET_ACCESS_KEY>
-kubectl create secret -n operators generic aws \
-  --from-literal AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-  --from-literal AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+1. **Create a combined policy** for Switchblade to manage AWS resources and licenses. Save the policy as `switchblade-combined-policy.json`:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "*",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "license-manager:CheckoutLicense",
+        "license-manager:CheckInLicense",
+        "license-manager:ExtendLicenseConsumption",
+        "license-manager:GetLicense"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
 ```
 
-*It is recommended to use a secure secrets management solution for production environments.*
+2. **Create the policy in AWS**:
 
-#### Set up License Key
+```bash
+aws iam create-policy --policy-name SwitchbladeCombinedPolicy --policy-document file://switchblade-combined-policy.json
+```
+
+3. **Create the IAM role** and associate the policy. Ensure you trust the EKS OIDC provider:
+
+```bash
+aws iam create-role \
+  --role-name SwitchbladeRole \
+  --assume-role-policy-document file://<(echo '{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Federated": "arn:aws:iam::<AWS_ACCOUNT_ID>:oidc-provider/<EKS_CLUSTER_OIDC_PROVIDER_URL>"
+        },
+        "Action": "sts:AssumeRoleWithWebIdentity",
+        "Condition": {
+          "StringEquals": {
+            "<EKS_CLUSTER_OIDC_PROVIDER_URL>:sub": "system:serviceaccount:operators:switchblade"
+          }
+        }
+      }
+    ]
+  }')
+```
+
+4. Attach the policy to the role:
+
+```bash
+aws iam attach-role-policy --role-name SwitchbladeRole --policy-arn arn:aws:iam::<AWS_ACCOUNT_ID>:policy/SwitchbladeCombinedPolicy
+```
+
+#### Step 2.2: Annotate the Service Account
+
+Link the IAM role to the Kubernetes service account used by Switchblade:
+
+```bash
+kubectl create serviceaccount switchblade -n operators
+kubectl annotate serviceaccount switchblade -n operators \
+  eks.amazonaws.com/role-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:role/SwitchbladeRole
+```
+
+*This setup allows Switchblade to use the IAM role dynamically without requiring static credentials.*
+
+#### Step 2.3: Attach the Policy to an EC2 Instance (Optional for k3s Clusters)
+
+If you are running Switchblade on a k3s cluster on EC2, you can attach the IAM policy directly to the EC2 instance:
+
+1. Navigate to the **IAM Role** section of the AWS Management Console.
+2. Create a new IAM role for EC2 and attach the `SwitchbladeCombinedPolicy`.
+3. Attach the IAM role to the EC2 instance:
+
+```bash
+aws ec2 associate-iam-instance-profile \
+  --instance-id <INSTANCE_ID> \
+  --iam-instance-profile Name=<IAM_ROLE_NAME>
+```
+
+*Ensure the EC2 instance has the necessary permissions to manage AWS resources.*
+
+### 3. Configure the License Key
 
 You can obtain a license key by contacting us [here](https://boundless.software/contact/) and providing your AWS Account ID and Marketplace Agreement Type.
 
@@ -59,7 +138,7 @@ kubectl create secret -n operators generic switchblade \
   --from-literal LICENSE_KEY=$LICENSE_KEY
 ```
 
-### 3. Create an S3 State Bucket
+### 4. Create an S3 State Bucket
 
 This bucket will store the operator’s state. You can use the AWS Console or CLI to create it.
 
@@ -69,17 +148,17 @@ aws s3api create-bucket --acl private --bucket mycompany-myenvironment-switchbla
 
 *Ensure the bucket is private to safeguard your operator’s state information.*
 
-### 4. Install the Helm Chart
+### 5. Install the Helm Chart
 
 1. Download the values file from Artifact Hub:
    [Switchblade Helm Chart Values](https://artifacthub.io/packages/helm/switchblade/switchblade?modal=values).
 
 2. Save the file as `values.yaml` and update the following fields:
-   - `AWS_STATE_BUCKET`: The name of the state bucket created in step 3.
+   - `AWS_STATE_BUCKET`: The name of the state bucket created in step 4.
    - `AWS_STATE_BUCKET_REGION`: The region of the state bucket.
+   - `SERVICE_ACCOUNT`: The service account created in step 2.2.
 
 3. Install the Helm chart:
-   - helm chart can be found here: https://artifacthub.io/packages/helm/switchblade/switchblade
 
 ```bash
 helm repo add switchblade https://www.helm.boundless.software/charts/stable
