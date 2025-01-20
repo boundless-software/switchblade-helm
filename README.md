@@ -33,6 +33,9 @@ kubectl create ns operators
 
 *Creating a separate namespace ensures isolation of resources specific to Switchblade.*
 
+
+*All of these steps can be done in console or CLI*
+
 ### 2. Set Up IAM Role for Kubernetes
 
 Switchblade uses **IAM Roles for Service Accounts (IRSA)** to securely access your AWS account without passing static credentials.
@@ -98,6 +101,14 @@ aws iam create-role \
 
 ```bash
 aws iam attach-role-policy --role-name SwitchbladeRole --policy-arn arn:aws:iam::<AWS_ACCOUNT_ID>:policy/SwitchbladeCombinedPolicy
+```
+
+5. Associate OIDC Provider with your EKS Cluster.
+```
+eksctl utils associate-iam-oidc-provider \
+  --region us-east-1 \
+  --cluster <your-cluster-name> \
+  --approve
 ```
 
 *This setup allows Switchblade to use the IAM role dynamically without requiring static credentials.*

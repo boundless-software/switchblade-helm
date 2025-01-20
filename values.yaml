@@ -17,7 +17,7 @@ env:
 - name: PARTNER_ID
   value: a687a145-4611-4c25-8bc1-9774f92f56a7
 - name: PRODUCT_CODE
-  value: prod-urxqo
+  value: prod-urxqor4c4t66q
 
 imagePullSecrets: []
 nameOverride: ""
