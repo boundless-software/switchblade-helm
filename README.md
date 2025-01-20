@@ -163,7 +163,7 @@ aws s3api create-bucket --acl private --bucket mycompany-myenvironment-switchbla
 
 ```bash
 helm repo add switchblade https://www.helm.boundless.software/charts/stable
-helm install switchblade switchblade/switchblade --version 0.0.19 -f values.yaml
+helm install switchblade -n operators switchblade/switchblade --version 0.0.19 -f values.yaml
 ```
 
 *Verify the Helm repository to ensure it is trusted and secure before proceeding.*
