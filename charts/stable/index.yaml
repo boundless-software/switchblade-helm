@@ -6,7 +6,7 @@ entries:
     created: "2025-03-30T19:14:45.139858782-04:00"
     description: A Helm chart for Kubernetes
     digest: 148711669d59da37f11bc29885561cdbc5b7b74ae1e9c1643c70a0ceaf464056
-    icon: https://i0.wp.com/boundless.software/wp-content/uploads/2023/06/CLOUD-LOGO-white.png?resize=146%2C88&ssl=1
+    icon: https://www.boundless.software/_next/image?url=%2Fimages%2Flogo.png&w=3840&q=75
     name: switchblade
     type: application
     urls:
