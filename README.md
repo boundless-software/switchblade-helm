@@ -147,7 +147,7 @@ aws s3api create-bucket --acl private --bucket mycompany-myenvironment-switchbla
 2. Save the file as `values.yaml` and update the following fields:
    - `AWS_STATE_BUCKET`: The name of the state bucket created in step 4.
    - `AWS_STATE_BUCKET_REGION`: The region of the state bucket.
-   - `SERVICE_ACCOUNT`: The service account created in step 2.2.
+   - `SERVICE_ACCOUNT`: Update the account ID for role ARN that was created in step 2.
    - `AGREEMENT_ID`: The agreement ID for aws-marketplace subscription. You can find the agreement ID for Switchblade in the [AWS Marketplace Subscriptions](https://us-east-1.console.aws.amazon.com/marketplace/home?region=us-east-1#/subscriptions).
 
 3. Install the Helm chart:
