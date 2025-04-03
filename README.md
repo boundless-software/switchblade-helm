@@ -129,17 +129,7 @@ aws ec2 associate-iam-instance-profile \
 
 *Ensure the EC2 instance has the necessary permissions to manage AWS resources.*
 
-### 3. Configure the License Key
-
-You can obtain a license key by contacting us [here](https://boundless.software/contact/) and providing your AWS Account ID and Marketplace Agreement Type.
-
-```bash
-export LICENSE_KEY=<LICENSE_KEY>
-kubectl create secret -n operators generic switchblade \
-  --from-literal LICENSE_KEY=$LICENSE_KEY
-```
-
-### 4. Create an S3 State Bucket
+### 3. Create an S3 State Bucket
 
 This bucket will store the operator’s state. You can use the AWS Console or CLI to create it.
 
@@ -149,7 +139,7 @@ aws s3api create-bucket --acl private --bucket mycompany-myenvironment-switchbla
 
 *Ensure the bucket is private to safeguard your operator’s state information.*
 
-### 5. Install the Helm Chart
+### 4. Install the Helm Chart
 
 1. Download the values file from Artifact Hub:
    [Switchblade Helm Chart Values](https://artifacthub.io/packages/helm/switchblade/switchblade?modal=values).
@@ -158,6 +148,7 @@ aws s3api create-bucket --acl private --bucket mycompany-myenvironment-switchbla
    - `AWS_STATE_BUCKET`: The name of the state bucket created in step 4.
    - `AWS_STATE_BUCKET_REGION`: The region of the state bucket.
    - `SERVICE_ACCOUNT`: The service account created in step 2.2.
+   - `AGREEMENT_ID`: The agreement ID for aws-marketplace subscription. You can find the agreement ID for Switchblade in the [AWS Marketplace Subscriptions](https://us-east-1.console.aws.amazon.com/marketplace/home?region=us-east-1#/subscriptions).
 
 3. Install the Helm chart:
 
