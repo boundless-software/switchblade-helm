@@ -41,11 +41,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.uid
-        - name: LICENSE_KEY
-          valueFrom:
-            secretKeyRef:
-              key: LICENSE_KEY
-              name: switchblade
 {{- range .Values.env }}
         - name: {{ .name }}
           value: {{ .value | quote }}
