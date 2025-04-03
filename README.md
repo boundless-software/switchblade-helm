@@ -25,22 +25,13 @@ To install and use Switchblade, ensure you meet the following requirements:
 
 ## Installation Steps
 
-### 1. Create a Namespace for Switchblade
-
-```bash
-kubectl create ns operators
-```
-
-*Creating a separate namespace ensures isolation of resources specific to Switchblade.*
-
-
 *All of these steps can be done in console or CLI*
 
-### 2. Set Up IAM Role for Kubernetes
+### 1. Set Up IAM Role for Kubernetes
 
 Switchblade uses **IAM Roles for Service Accounts (IRSA)** to securely access your AWS account without passing static credentials.
 
-#### Step 2.1: Create an IAM Role for Switchblade
+#### Step 1.1: Create an IAM Role for Switchblade
 
 1. **Create a combined policy** for Switchblade to manage AWS resources and licenses. Save the policy as `switchblade-combined-policy.json`:
 
@@ -113,7 +104,7 @@ eksctl utils associate-iam-oidc-provider \
 
 *This setup allows Switchblade to use the IAM role dynamically without requiring static credentials.*
 
-#### Step 2.3: Attach the Policy to an EC2 Instance (Optional for k3s Clusters)
+#### Step 1.2: Attach the Policy to an EC2 Instance (Optional for k3s Clusters)
 
 If you are running Switchblade on a k3s cluster on EC2, you can attach the IAM policy directly to the EC2 instance:
 
@@ -129,7 +120,7 @@ aws ec2 associate-iam-instance-profile \
 
 *Ensure the EC2 instance has the necessary permissions to manage AWS resources.*
 
-### 3. Create an S3 State Bucket
+### 2. Create an S3 State Bucket
 
 This bucket will store the operator’s state. You can use the AWS Console or CLI to create it.
 
@@ -139,7 +130,7 @@ aws s3api create-bucket --acl private --bucket mycompany-myenvironment-switchbla
 
 *Ensure the bucket is private to safeguard your operator’s state information.*
 
-### 4. Install the Helm Chart
+### 3. Install the Helm Chart
 
 1. Download the values file from Artifact Hub:
    [Switchblade Helm Chart Values](https://artifacthub.io/packages/helm/switchblade/switchblade?modal=values).
@@ -176,7 +167,8 @@ helm upgrade switchblade switchblade/switchblade --version <NEW_VERSION> -f valu
 To uninstall Switchblade, run the following command:
 
 ```bash
-helm uninstall switchblade
+helm uninstall switchblade -n operators
+helm repo remove switchblade
 ```
 
 ---
