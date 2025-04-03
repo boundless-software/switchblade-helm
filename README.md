@@ -6,7 +6,7 @@ Switchblade is a powerful Kubernetes operator for deploying and managing cloud i
 
 ## Documentation and Support
 
-- Documentation with examples: [Switchblade Documentation](http://switchblade-samples.boundless.software/aws/)
+- Documentation with examples: [Switchblade Documentation](https://www.boundless.software/docs/introduction/getting-started)
 - Support Email: [support@boundless.software](mailto:support@boundless.software)
 
 ---
