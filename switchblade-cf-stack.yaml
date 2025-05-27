@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: CloudFormation template to create prerequisite AWS resources for Switchblade
+
+Parameters:
+  AWSAccountId:
+    Type: String
+    Description: Your AWS Account ID
+  EksClusterOidcProviderUrl:
+    Type: String
+    Description: The OIDC provider URL of your EKS cluster (e.g.,
+      oidc.eks.region.amazonaws.com/id/EXAMPLED539D4633E53DE1B71EXAMPLE)
+  StateBucketName:
+    Type: String
+    Description: Name for the S3 bucket to store Switchblade state
+  StateBucketRegion:
+    Type: String
+    Description: Region where the S3 bucket will be created
+    Default: us-east-1
+
+Resources:
+  SwitchbladeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SwitchbladeRole
+      AssumeRolePolicyDocument:
+        Fn::Sub:
+          - |
+            {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Federated": "arn:aws:iam::${AWSAccountId}:oidc-provider/${EksClusterOidcProviderUrl}"
+                  },
+                  "Action": "sts:AssumeRoleWithWebIdentity",
+                  "Condition": {
+                    "StringEquals": {
+                      "${EksClusterOidcProviderUrl}:sub": "system:serviceaccount:operators:switchblade",
+                      "${EksClusterOidcProviderUrl}:aud": "sts.amazonaws.com"
+                    }
+                  }
+                }
+              ]
+            }
+          - AWSAccountId: !Ref AWSAccountId
+            EksClusterOidcProviderUrl: !Ref EksClusterOidcProviderUrl
+      Policies:
+        - PolicyName: SwitchbladeCombinedPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - license-manager:CheckoutLicense
+                  - license-manager:CheckInLicense
+                  - license-manager:ExtendLicenseConsumption
+                  - license-manager:GetLicense
+                Resource: '*'
+
+  SwitchbladeStateBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref StateBucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+Outputs:
+  SwitchbladeRoleArn:
+    Description: ARN of the Switchblade IAM Role
+    Value: !GetAtt SwitchbladeRole.Arn
+  StateBucketName:
+    Description: Name of the S3 bucket for Switchblade state
+    Value: !Ref SwitchbladeStateBucket
