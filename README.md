@@ -29,12 +29,32 @@ Switchblade is a powerful Kubernetes operator for deploying and managing cloud i
 curl -o values.yaml https://www.helm.boundless.software/values.yaml
 ```
 
-3. Add the Helm repository:
+3. Update the following values in `values.yaml` (replace with your values):
+```yaml
+env:
+  - name: AWS_STATE_BUCKET
+    value: "my-company-switchblade-state"  # Replace with your S3 bucket name
+  - name: AWS_STATE_BUCKET_REGION
+    value: "us-east-1"  # Replace with your bucket region
+
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::123456789012:role/SwitchbladeRole"  # Replace with your IAM role ARN
+```
+
+4. Add the Helm repository:
 ```bash
 helm repo add switchblade https://www.helm.boundless.software/charts/stable
 ```
 
-4. Install Switchblade:
+5. Install Switchblade (choose one method):
+
+Using values.yaml:
+```bash
+helm install switchblade -n operators switchblade/switchblade --version 0.0.19 -f values.yaml --create-namespace
+```
+
+Or using --set flags:
 ```bash
 helm install switchblade -n operators switchblade/switchblade --version 0.0.19 -f values.yaml --create-namespace
 ```
