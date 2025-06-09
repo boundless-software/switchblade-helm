@@ -56,7 +56,13 @@ helm install switchblade -n operators switchblade/switchblade --version 0.0.19 -
 
 Or using --set flags:
 ```bash
-helm install switchblade -n operators switchblade/switchblade --version 0.0.19 -f values.yaml --create-namespace
+helm install switchblade -n operators switchblade/switchblade --version 0.0.19 \
+  --set env[0].name=AWS_STATE_BUCKET \
+  --set env[0].value=<my-company-switchblade-state> \
+  --set env[1].name=AWS_STATE_BUCKET_REGION \
+  --set env[1].value=us-east-1 \
+  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=<my-company-switchblade-role> \
+  --create-namespace
 ```
 
 ## Updating
